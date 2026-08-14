@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>コエカキ — 無料の音声入力メモ</title>
+<style>
+  :root {
+    --bg: #faf9f7; --fg: #1c1b1a; --sub: #77716a; --card: #ffffff;
+    --accent: #c2410c; --accent-soft: #ffedd5; --border: #e7e2db;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #171615; --fg: #ece9e4; --sub: #98928a; --card: #211f1e;
+      --accent: #fb923c; --accent-soft: #3b2a1a; --border: #35322f;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    padding: 32px 16px;
+  }
+  main { width: 100%; max-width: 640px; }
+  h1 { font-size: 20px; letter-spacing: .08em; }
+  .sub { color: var(--sub); font-size: 13px; margin: 6px 0 24px; }
+  #recBtn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 18px; border-radius: 14px; border: none; cursor: pointer;
+    background: var(--accent); color: #fff; font-size: 17px; font-weight: 600;
+    transition: transform .08s;
+  }
+  #recBtn:active { transform: scale(.98); }
+  #recBtn.recording { background: #dc2626; animation: pulse 1.4s infinite; }
+  @keyframes pulse { 50% { opacity: .75; } }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; }
+  #interim {
+    min-height: 1.6em; margin: 16px 4px 8px; color: var(--sub); font-size: 15px;
+  }
+  #out {
+    width: 100%; min-height: 260px; padding: 16px; border-radius: 14px;
+    border: 1px solid var(--border); background: var(--card); color: var(--fg);
+    font-size: 16px; line-height: 1.9; resize: vertical;
+  }
+  #out:focus { outline: 2px solid var(--accent); border-color: transparent; }
+  .row { display: flex; gap: 10px; margin-top: 14px; }
+  .row button {
+    flex: 1; padding: 12px; border-radius: 10px; cursor: pointer; font-size: 14px;
+    border: 1px solid var(--border); background: var(--card); color: var(--fg);
+  }
+  .row button:hover { background: var(--accent-soft); }
+  #unsupported {
+    display: none; background: var(--accent-soft); border-radius: 10px;
+    padding: 14px; font-size: 14px; margin-bottom: 16px; line-height: 1.7;
+  }
+  footer { color: var(--sub); font-size: 12px; margin-top: 28px; line-height: 1.8; text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>コエカキ</h1>
+  <p class="sub">しゃべるだけでメモが書ける、無料の音声入力。録音データはどこにも保存されません。</p>
+
+  <div id="unsupported">このブラウザは音声認識に対応していません。Chrome・Edge・Safari でお試しください。</div>
+
+  <button id="recBtn"><span class="dot"></span><span id="recLabel">タップして話す</span></button>
+  <p id="interim"></p>
+  <textarea id="out" placeholder="ここに文字が入ります。手で直すこともできます。"></textarea>
+
+  <div class="row">
+    <button id="copyBtn">コピー</button>
+    <button id="clearBtn">クリア</button>
+  </div>
+
+  <footer>マイクの許可を求められたら「許可」を押してください。<br>句読点は「まる」「てん」と言うと入ります。</footer>
+</main>
+
+<script>
+(function () {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recBtn = document.getElementById('recBtn');
+  const recLabel = document.getElementById('recLabel');
+  const interim = document.getElementById('interim');
+  const out = document.getElementById('out');
+
+  if (!SR) {
+    document.getElementById('unsupported').style.display = 'block';
+    recBtn.disabled = true;
+    return;
+  }
+
+  let rec = null;
+  let listening = false;
+  let stopRequested = false;
+
+  function append(text) {
+    const t = text.trim();
+    if (!t) return;
+    out.value += t;
+    out.scrollTop = out.scrollHeight;
+  }
+
+  function start() {
+    rec = new SR();
+    rec.lang = 'ja-JP';
+    rec.continuous = true;
+    rec.interimResults = true;
+
+    rec.onresult = (e) => {
+      let interimText = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const r = e.results[i];
+        if (r.isFinal) append(r[0].transcript);
+        else interimText += r[0].transcript;
+      }
+      interim.textContent = interimText;
+    };
+    rec.onerror = (e) => {
+      if (e.error === 'not-allowed') {
+        interim.textContent = 'マイクが許可されていません。ブラウザの設定でこのページのマイクを許可してください。';
+        stopRequested = true;
+        setIdle();
+      }
+    };
+    rec.onend = () => {
+      // 無音で勝手に切れたら継続、ユーザーが止めたら終了
+      if (!stopRequested) { try { rec.start(); } catch (_) { setIdle(); } }
+      else setIdle();
+    };
+
+    stopRequested = false;
+    rec.start();
+    listening = true;
+    recBtn.classList.add('recording');
+    recLabel.textContent = '録音中… タップで停止';
+  }
+
+  function setIdle() {
+    listening = false;
+    recBtn.classList.remove('recording');
+    recLabel.textContent = 'タップして話す';
+    interim.textContent = '';
+  }
+
+  recBtn.addEventListener('click', () => {
+    if (listening) { stopRequested = true; rec.stop(); }
+    else start();
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    if (!out.value) return;
+    try {
+      await navigator.clipboard.writeText(out.value);
+    } catch (_) {
+      out.select(); document.execCommand('copy');
+    }
+    const btn = document.getElementById('copyBtn');
+    const orig = btn.textContent;
+    btn.textContent = 'コピーしました';
+    setTimeout(() => { btn.textContent = orig; }, 1200);
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    if (out.value && !confirm('全部消しますか？')) return;
+    out.value = '';
+    interim.textContent = '';
+  });
+})();
+</script>
+</body>
+</html>
