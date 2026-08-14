@@ -11,6 +11,7 @@ make_app() {
     mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
     cp ".build/release/$exe" "$app/Contents/MacOS/$exe"
     cp "$plist" "$app/Contents/Info.plist"
+    cp "Resources/AppIcon.icns" "$app/Contents/Resources/AppIcon.icns"
     codesign --force --sign - "$app"
     echo "完成: $app"
 }

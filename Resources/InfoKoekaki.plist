@@ -2,27 +2,29 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleName</key>
-	<string>コエカキ</string>
 	<key>CFBundleDisplayName</key>
 	<string>コエカキ</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.manabu.koekaki</string>
 	<key>CFBundleExecutable</key>
 	<string>Koekaki</string>
-	<key>CFBundleVersion</key>
-	<string>1.0.0</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.manabu.koekaki</string>
+	<key>CFBundleName</key>
+	<string>コエカキ</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.0</string>
+	<key>CFBundleVersion</key>
+	<string>1.0.0</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>音声入力を文字起こしするためにマイクを使用します。</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>話した内容を文字にするために音声認識を使用します。</string>
-	<key>NSHighResolutionCapable</key>
-	<true/>
 </dict>
 </plist>
