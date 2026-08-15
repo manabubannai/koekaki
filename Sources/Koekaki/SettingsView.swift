@@ -37,6 +37,28 @@ struct SettingsView: View {
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
+            Divider()
+
+            Text("バグ報告")
+                .font(.subheadline.bold())
+
+            Text("不具合を見つけたら、下のボタンから教えてください。")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Button("メールでバグを報告") {
+                openBugReportMail()
+            }
+
+            Text("メールが開かない場合は manablog.ai@gmail.com へ直接お送りください")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Divider()
+
             HStack {
                 Button("リセット (⌥Space)") {
                     stopRecordingKeys()
@@ -74,6 +96,31 @@ struct SettingsView: View {
                                    label: HotKeySetting.keyLabel(for: event))
             stopRecordingKeys()
             return nil
+        }
+    }
+
+    private func openBugReportMail() {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+        let body = """
+        ■ どんな不具合ですか？
+        （ここに書いてください）
+
+        ■ 直前に何をしましたか？（再現手順）
+        （ここに書いてください）
+
+        ---
+        アプリ: Koekaki v\(version)
+        macOS: \(ProcessInfo.processInfo.operatingSystemVersionString)
+        """
+        var comps = URLComponents()
+        comps.scheme = "mailto"
+        comps.path = "manablog.ai@gmail.com"
+        comps.queryItems = [
+            URLQueryItem(name: "subject", value: "【バグ報告】Koekaki v\(version)"),
+            URLQueryItem(name: "body", value: body)
+        ]
+        if let url = comps.url {
+            NSWorkspace.shared.open(url)
         }
     }
 

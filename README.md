@@ -2,7 +2,7 @@
 
 しゃべるだけで文字が入る音声入力ツール(superwhisperの無料自作版)。
 
-**ダウンロード**: [最新版 Koekaki.app(zip)](https://github.com/manabubannai/koekaki/releases/download/v1.1.0/Koekaki.zip) — 解凍してアプリケーションフォルダに入れるだけ。
+**ダウンロード**: [最新版 Koekaki.app(zip)](https://github.com/manabubannai/koekaki/releases/download/v2.0.1/Koekaki.zip) — 解凍してアプリケーションフォルダに入れるだけ。
 
 このリポジトリには、自分用のメニューバー版(Koe / Koe AI)も含めた全バージョンのコードが入っています。
 
