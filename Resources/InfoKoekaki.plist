@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>コエカキ</string>
+	<string>Koekaki</string>
 	<key>CFBundleExecutable</key>
 	<string>Koekaki</string>
 	<key>CFBundleIconFile</key>
@@ -11,13 +11,13 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.manabu.koekaki</string>
 	<key>CFBundleName</key>
-	<string>コエカキ</string>
+	<string>Koekaki</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
+	<string>1.1.0</string>
 	<key>CFBundleVersion</key>
-	<string>1.0.0</string>
+	<string>1.1.0</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>NSHighResolutionCapable</key>

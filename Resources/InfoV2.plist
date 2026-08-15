@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>MBVoice AI</string>
+	<string>Koe AI</string>
 	<key>CFBundleExecutable</key>
 	<string>MBVoiceV2</string>
 	<key>CFBundleIconFile</key>
@@ -11,7 +11,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.manabu.mbvoice.ai</string>
 	<key>CFBundleName</key>
-	<string>MBVoice AI</string>
+	<string>Koe AI</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

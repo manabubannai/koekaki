@@ -1,5 +1,5 @@
 #!/bin/zsh
-# MBVoice.app (v1) と MBVoice AI.app (v2) をビルドして dist/ に作成する (Apple Silicon)
+# Koe.app (v1) / Koe AI.app (v2) / Koekaki.app をビルドして dist/ に作成する (Apple Silicon)
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -16,6 +16,6 @@ make_app() {
     echo "完成: $app"
 }
 
-make_app "dist/MBVoice.app"    "MBVoiceV1" "Resources/InfoV1.plist"
-make_app "dist/MBVoice AI.app" "MBVoiceV2" "Resources/InfoV2.plist"
-make_app "dist/コエカキ.app"     "Koekaki"   "Resources/InfoKoekaki.plist"
+make_app "dist/Koe.app"     "MBVoiceV1" "Resources/InfoV1.plist"
+make_app "dist/Koe AI.app"  "MBVoiceV2" "Resources/InfoV2.plist"
+make_app "dist/Koekaki.app" "Koekaki"   "Resources/InfoKoekaki.plist"

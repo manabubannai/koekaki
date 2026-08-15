@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>MBVoice</string>
+	<string>Koe</string>
 	<key>CFBundleExecutable</key>
 	<string>MBVoiceV1</string>
 	<key>CFBundleIconFile</key>
@@ -11,7 +11,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.manabu.mbvoice</string>
 	<key>CFBundleName</key>
-	<string>MBVoice</string>
+	<string>Koe</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

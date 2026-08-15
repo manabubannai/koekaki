@@ -1,11 +1,11 @@
-# メルマガ用リリース文(コエカキ v1.0.0)
+# メルマガ用リリース文(Koekaki v1.1.0)
 
-しゃべるだけでメモが書ける無料Macアプリ「コエカキ」を作りました。
+しゃべるだけでメモが書ける無料Macアプリ「Koekaki」を大幅アップデートしました。
 
-開いて、ボタンを押して、話すだけ。文字になったらコピーして好きな場所へ。登録なし、広告なし、録音データはどこにも残りません。
+小さなウィンドウが常に最前面に浮いていて、大きなボタンを1クリックで録音開始、もう1クリックで停止。その瞬間に全文がクリップボードに入るので、あとは⌘Vで貼るだけ。執筆中のエディタの横に置いて使えます。登録なし、広告なし、録音データはどこにも残りません。
 
 ダウンロード(zip解凍→アプリケーションへ。初回だけマイクと音声認識を許可):
-https://github.com/manabubannai/koekaki/releases/latest/download/Koekaki.zip
+https://github.com/manabubannai/koekaki/releases/download/v1.1.0/Koekaki.zip
 
 コードも全公開:
 https://github.com/manabubannai/koekaki
