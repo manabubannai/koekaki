@@ -16,7 +16,7 @@ private struct FloatingWindowConfigurator: NSViewRepresentable {
 }
 
 struct ContentView: View {
-    @StateObject private var engine = SpeechEngine()
+    @StateObject private var engine = WhisperEngine()
     @State private var copied = false
     @State private var hotKey = HotKeySetting.load()
     @State private var showSettings = false
@@ -40,20 +40,27 @@ struct ContentView: View {
                 .help("ショートカットキーの設定")
             }
 
-            // 主役: 大きな録音ボタン(1クリックで開始、もう1クリックで停止+自動コピー)
+            // 主役: 大きな録音ボタン(1クリックで開始、もう1クリックで停止→AI文字起こし→自動コピー)
             Button(action: handleTap) {
                 ZStack {
                     Circle()
-                        .fill(engine.listening ? Color.red : Color.orange)
+                        .fill(buttonColor)
                         .frame(width: 96, height: 96)
-                        .shadow(color: (engine.listening ? Color.red : Color.orange).opacity(0.4),
-                                radius: engine.listening ? 14 : 6)
-                    Image(systemName: engine.listening ? "stop.fill" : "mic.fill")
-                        .font(.system(size: 36, weight: .bold))
-                        .foregroundColor(.white)
+                        .shadow(color: buttonColor.opacity(0.4),
+                                radius: engine.state == .recording ? 14 : 6)
+                    if engine.state == .transcribing {
+                        ProgressView()
+                            .controlSize(.large)
+                            .tint(.white)
+                    } else {
+                        Image(systemName: engine.state == .recording ? "stop.fill" : "mic.fill")
+                            .font(.system(size: 36, weight: .bold))
+                            .foregroundColor(.white)
+                    }
                 }
             }
             .buttonStyle(.plain)
+            .disabled(engine.state == .transcribing)
 
             Text(statusText)
                 .font(.caption.bold())
@@ -94,32 +101,44 @@ struct ContentView: View {
         }
     }
 
-    private var previewText: String {
-        engine.listening ? (engine.transcript + engine.interim) : engine.transcript
+    private var previewText: String { engine.transcript }
+
+    private var buttonColor: Color {
+        switch engine.state {
+        case .recording: return .red
+        case .transcribing: return .gray
+        case .idle: return .orange
+        }
     }
 
     private var statusText: String {
-        if engine.listening { return "録音中… クリックか \(hotKey.displayString) で停止" }
-        if copied { return "コピーしました ⌘Vで貼り付け" }
-        return "クリックか \(hotKey.displayString) で話す"
+        switch engine.state {
+        case .recording: return "録音中 \(engine.elapsed)秒 … クリックか \(hotKey.displayString) で停止"
+        case .transcribing: return "AIが文字起こし中…"
+        case .idle:
+            if copied { return "コピーしました ⌘Vで貼り付け" }
+            return "クリックか \(hotKey.displayString) で話す"
+        }
     }
 
     private func handleTap() {
-        if engine.listening {
-            engine.stop()
-            let text = engine.transcript
-            guard !text.isEmpty else { return }
-            let pb = NSPasteboard.general
-            pb.clearContents()
-            pb.setString(text, forType: .string)
-            copied = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { copied = false }
-        } else {
+        switch engine.state {
+        case .recording:
+            engine.stop { text in
+                guard !text.isEmpty else { return }
+                let pb = NSPasteboard.general
+                pb.clearContents()
+                pb.setString(text, forType: .string)
+                copied = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) { copied = false }
+            }
+        case .idle:
             // 新しい録音は前回のテキストをクリアして新規開始
             engine.transcript = ""
-            engine.interim = ""
             copied = false
             engine.start()
+        case .transcribing:
+            break
         }
     }
 }
