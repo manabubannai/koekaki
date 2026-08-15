@@ -18,12 +18,27 @@ private struct FloatingWindowConfigurator: NSViewRepresentable {
 struct ContentView: View {
     @StateObject private var engine = SpeechEngine()
     @State private var copied = false
+    @State private var hotKey = HotKeySetting.load()
+    @State private var showSettings = false
 
     var body: some View {
         VStack(spacing: 12) {
-            Text("Koekaki")
-                .font(.headline)
-                .kerning(1)
+            HStack {
+                Image(systemName: "gearshape").hidden()
+                Spacer()
+                Text("Koekaki")
+                    .font(.headline)
+                    .kerning(1)
+                Spacer()
+                Button {
+                    showSettings = true
+                } label: {
+                    Image(systemName: "gearshape")
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help("ショートカットキーの設定")
+            }
 
             // 主役: 大きな録音ボタン(1クリックで開始、もう1クリックで停止+自動コピー)
             Button(action: handleTap) {
@@ -66,6 +81,17 @@ struct ContentView: View {
         .padding(16)
         .frame(width: 300)
         .background(FloatingWindowConfigurator())
+        .sheet(isPresented: $showSettings) {
+            SettingsView(hotKey: $hotKey)
+        }
+        .onAppear {
+            HotKeyCenter.shared.onPress = { handleTap() }
+            HotKeyCenter.shared.apply(hotKey)
+        }
+        .onChange(of: hotKey) { newValue in
+            newValue.save()
+            HotKeyCenter.shared.apply(newValue)
+        }
     }
 
     private var previewText: String {
@@ -73,9 +99,9 @@ struct ContentView: View {
     }
 
     private var statusText: String {
-        if engine.listening { return "録音中… クリックで停止" }
+        if engine.listening { return "録音中… クリックか \(hotKey.displayString) で停止" }
         if copied { return "コピーしました ⌘Vで貼り付け" }
-        return "クリックして話す"
+        return "クリックか \(hotKey.displayString) で話す"
     }
 
     private func handleTap() {
