@@ -27,7 +27,7 @@ final class WhisperEngine: NSObject, ObservableObject {
             ?? URL(fileURLWithPath: FileManager.default.currentDirectoryPath
                    + "/Resources/Sounds/RecordStart.wav") // swift run 用の開発フォールバック
         let s = NSSound(contentsOf: url, byReference: true)
-        s?.volume = 1.0
+        s?.volume = 0.5 // 本家superwhisperと聴感を合わせるため半分に(2026-08-20マナブ指示)
         return s
     }()
     private let stopSound: NSSound? = {
