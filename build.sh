@@ -25,5 +25,6 @@ make_app "dist/NoType.app"  "Koekaki"   "Resources/InfoKoekaki.plist" "Resources
 # vendor/whisper/ は whisper.cpp v1.9.2 を cmake (BUILD_SHARED_LIBS=OFF,
 # GGML_METAL_EMBED_LIBRARY=ON) でビルドした静的ライブラリ+ヘッダ
 cp "Resources/models/ggml-large-v3-turbo-q5_0.bin" "dist/NoType.app/Contents/Resources/"
+cp "Resources/Sounds/RecordStart.wav" "dist/NoType.app/Contents/Resources/"
 codesign --force --sign - "dist/NoType.app"
 echo "モデル同梱: dist/NoType.app"
