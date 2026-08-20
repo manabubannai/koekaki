@@ -1,9 +1,8 @@
 import SwiftUI
 
-/// 設定画面(メイン小窓からシートで開く)。superwhisper風のセクション+カード構成。
+/// 設定画面(専用ウィンドウとして開く)。superwhisper風のセクション+カード構成。
 struct SettingsView: View {
     @Binding var hotKey: HotKeySetting
-    @Environment(\.dismiss) private var dismiss
     @AppStorage(Paster.autoPasteKey) private var autoPaste = true
     @State private var recording = false
     @State private var monitor: Any?
@@ -18,7 +17,7 @@ struct SettingsView: View {
                 Spacer()
                 Button("閉じる") {
                     stopRecordingKeys()
-                    dismiss()
+                    NSApp.keyWindow?.close()
                 }
                 .keyboardShortcut(.defaultAction)
             }
