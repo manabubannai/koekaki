@@ -70,6 +70,16 @@ final class HotKeyCenter {
     private var hotKeyRef: EventHotKeyRef?
     private var handlerRef: EventHandlerRef?
     private var fnMonitors: [Any] = []
+    private var lastFire = Date.distantPast
+
+    /// 二重発火(モニタの重複・機種依存のflagsChanged連発)で録音が
+    /// 停止→即再開して音声が消えるのを防ぐデバウンス。
+    private func fire() {
+        let now = Date()
+        guard now.timeIntervalSince(lastFire) > 0.3 else { return }
+        lastFire = now
+        onPress?()
+    }
 
     private init() {
         var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard),
@@ -77,7 +87,7 @@ final class HotKeyCenter {
         InstallEventHandler(GetApplicationEventTarget(), { _, _, userData in
             guard let userData else { return noErr }
             let center = Unmanaged<HotKeyCenter>.fromOpaque(userData).takeUnretainedValue()
-            DispatchQueue.main.async { center.onPress?() }
+            DispatchQueue.main.async { center.fire() }
             return noErr
         }, 1, &spec, Unmanaged.passUnretained(self).toOpaque(), &handlerRef)
     }
@@ -96,7 +106,7 @@ final class HotKeyCenter {
             let fire: (NSEvent) -> Void = { [weak self] event in
                 guard event.keyCode == 63,
                       event.modifierFlags.contains(.function) else { return } // 押した瞬間のみ(離しは無視)
-                DispatchQueue.main.async { self?.onPress?() }
+                DispatchQueue.main.async { self?.fire() }
             }
             if let global = NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged, handler: fire) {
                 fnMonitors.append(global)
