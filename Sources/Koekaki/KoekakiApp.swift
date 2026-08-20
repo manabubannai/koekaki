@@ -3,7 +3,7 @@ import SwiftUI
 @main
 struct KoekakiApp: App {
     var body: some Scene {
-        WindowGroup("Koekaki") {
+        WindowGroup("NoType") {
             ContentView()
         }
         .windowResizability(.contentSize)
