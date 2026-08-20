@@ -8,6 +8,10 @@ struct HotKeySetting: Equatable {
     var label: String
 
     static let `default` = HotKeySetting(keyCode: 49, modifiers: .option, label: "Space")
+    static let fnOnly = HotKeySetting(keyCode: 63, modifiers: [], label: "Fn")
+
+    /// Fn(🌐)単独。CarbonのRegisterEventHotKeyでは扱えないためNSEvent監視で拾う。
+    var isFnOnly: Bool { keyCode == 63 && modifiers.isEmpty }
 
     var displayString: String {
         var s = ""
@@ -65,6 +69,7 @@ final class HotKeyCenter {
     var onPress: (() -> Void)?
     private var hotKeyRef: EventHotKeyRef?
     private var handlerRef: EventHandlerRef?
+    private var fnMonitors: [Any] = []
 
     private init() {
         var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard),
@@ -82,6 +87,29 @@ final class HotKeyCenter {
             UnregisterEventHotKey(r)
             hotKeyRef = nil
         }
+        fnMonitors.forEach { NSEvent.removeMonitor($0) }
+        fnMonitors.removeAll()
+
+        if setting.isFnOnly {
+            // Fn単独はCarbonで登録できないため、flagsChangedをNSEventで監視する。
+            // 他アプリ使用中の検知(グローバル監視)にはアクセシビリティ許可が必要。
+            let fire: (NSEvent) -> Void = { [weak self] event in
+                guard event.keyCode == 63,
+                      event.modifierFlags.contains(.function) else { return } // 押した瞬間のみ(離しは無視)
+                DispatchQueue.main.async { self?.onPress?() }
+            }
+            if let global = NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged, handler: fire) {
+                fnMonitors.append(global)
+            }
+            if let local = NSEvent.addLocalMonitorForEvents(matching: .flagsChanged, handler: { event in
+                fire(event)
+                return event
+            }) {
+                fnMonitors.append(local)
+            }
+            return
+        }
+
         var ref: EventHotKeyRef?
         let id = EventHotKeyID(signature: OSType(0x4B4F_454B), id: 1) // "KOEK"
         RegisterEventHotKey(UInt32(setting.keyCode), setting.carbonModifiers, id,

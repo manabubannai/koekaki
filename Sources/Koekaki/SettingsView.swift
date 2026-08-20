@@ -7,6 +7,7 @@ struct SettingsView: View {
     @AppStorage(Paster.autoPasteKey) private var autoPaste = true
     @State private var recording = false
     @State private var monitor: Any?
+    @State private var flagsMonitor: Any?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -25,7 +26,7 @@ struct SettingsView: View {
             section("キーボードショートカット") {
                 row(title: "録音の開始 / 停止",
                     subtitle: recording
-                        ? "修飾キー(⌘⌥⌃⇧)と一緒に押してください。Escで中止"
+                        ? "修飾キー(⌘⌥⌃⇧)と一緒に押すか、Fnキー単独を押してください。Escで中止"
                         : "どのアプリを使っていても、このキーで話しはじめられます") {
                     HStack(spacing: 8) {
                         Button {
@@ -162,6 +163,13 @@ struct SettingsView: View {
 
     private func startRecordingKeys() {
         recording = true
+        // Fn(🌐)単独は keyDown が来ないので flagsChanged で拾う
+        flagsMonitor = NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { event in
+            guard event.keyCode == 63, event.modifierFlags.contains(.function) else { return event }
+            hotKey = .fnOnly
+            stopRecordingKeys()
+            return nil
+        }
         monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             if event.keyCode == 53 { // Esc
                 stopRecordingKeys()
@@ -208,6 +216,10 @@ struct SettingsView: View {
         if let m = monitor {
             NSEvent.removeMonitor(m)
             monitor = nil
+        }
+        if let f = flagsMonitor {
+            NSEvent.removeMonitor(f)
+            flagsMonitor = nil
         }
     }
 }

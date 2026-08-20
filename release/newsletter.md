@@ -1,4 +1,4 @@
-# メルマガ用リリース文(NoType v3.0.0)
+# メルマガ用リリース文(NoType v3.0.1)
 
 しゃべるだけでメモが書ける無料Macアプリを大きくアップデートして、名前も「NoType」に変えました(旧名: Koekaki)。キーボードを打たない、という意味です。
 
@@ -6,10 +6,10 @@
 
 見た目も一新しました。ダークで落ち着いた配色、superwhisper風の設定画面、新しいアイコン。中身は変わらず、AI音声認識(whisper large-v3-turbo)がMacの中だけで動くので、音声はどこにも送信されません。登録なし、広告なし。
 
-使い方: 文字を入れたい場所にカーソルを置いて、ショートカットキー(初期設定 ⌥Space、変更可)で話しはじめ、もう一度押して終了。それだけです。初回だけ、マイクと「アクセシビリティ」(自動貼り付けに必要)の許可をお願いします。
+使い方: 文字を入れたい場所にカーソルを置いて、ショートカットキー(初期設定 ⌥Space。superwhisperと同じFn単独キーにも変更可)で話しはじめ、もう一度押して終了。それだけです。初回だけ、マイクと「アクセシビリティ」(自動貼り付けに必要)の許可をお願いします。
 
 ダウンロード(zip解凍→アプリケーションへ。macOS 13以降/Apple Silicon):
-https://github.com/manabubannai/koekaki/releases/download/v3.0.0/NoType.zip
+https://github.com/manabubannai/koekaki/releases/download/v3.0.1/NoType.zip
 
 コードも全公開:
 https://github.com/manabubannai/koekaki
