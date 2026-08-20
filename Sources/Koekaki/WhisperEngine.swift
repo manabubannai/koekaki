@@ -1,4 +1,5 @@
 import AVFoundation
+import AppKit
 import CWhisper
 
 /// 同梱のwhisper(large-v3-turbo量子化)でローカル文字起こしする。
@@ -19,6 +20,13 @@ final class WhisperEngine: NSObject, ObservableObject {
     private var ctx: OpaquePointer?
     private var timer: Timer?
     private let language = strdup("ja")
+    // superwhisper風の効果音(録音開始/停止)。システム音のPop/Bottleを控えめの音量で鳴らす
+    private let startSound: NSSound? = {
+        let s = NSSound(named: "Pop"); s?.volume = 0.6; return s
+    }()
+    private let stopSound: NSSound? = {
+        let s = NSSound(named: "Bottle"); s?.volume = 0.6; return s
+    }()
 
     func start() {
         guard state == .idle else { return }
@@ -43,6 +51,8 @@ final class WhisperEngine: NSObject, ObservableObject {
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
         converter = nil
+        stopSound?.stop()
+        stopSound?.play()
         whisperQueue.async {
             let audio = self.sampleQueue.sync { self.samples }
             let text = self.transcribe(audio)
@@ -75,6 +85,8 @@ final class WhisperEngine: NSObject, ObservableObject {
             state = .recording
             elapsed = 0
             errorMessage = nil
+            startSound?.stop()
+            startSound?.play()
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
                 self?.elapsed += 1
             }
