@@ -20,13 +20,14 @@ final class WhisperEngine: NSObject, ObservableObject {
     private var ctx: OpaquePointer?
     private var timer: Timer?
     private let language = strdup("ja")
-    // 効果音(録音開始/停止)。開始は同梱の自作ソフトタップ「コン」、停止はシステム音Bottle
+    // 効果音(録音開始/停止)。開始はsuperwhisper Classicを音響解析で再現した自作音(音量も本家準拠で
+    // ファイルに焼き込み済みのためvolumeは1.0)、停止はシステム音Bottle
     private let startSound: NSSound? = {
         let url = Bundle.main.url(forResource: "RecordStart", withExtension: "wav")
             ?? URL(fileURLWithPath: FileManager.default.currentDirectoryPath
                    + "/Resources/Sounds/RecordStart.wav") // swift run 用の開発フォールバック
         let s = NSSound(contentsOf: url, byReference: true)
-        s?.volume = 0.6
+        s?.volume = 1.0
         return s
     }()
     private let stopSound: NSSound? = {
