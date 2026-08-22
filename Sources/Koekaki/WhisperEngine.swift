@@ -12,7 +12,9 @@ final class WhisperEngine: NSObject, ObservableObject {
     @Published var elapsed: Int = 0
     @Published var errorMessage: String?
 
-    private let audioEngine = AVAudioEngine()
+    // 録音のたびに作り直す。使い回すと、途中でマイクやオーディオ機器が変わったときに
+    // 古いフォーマットを掴んだままになり、installTap が例外を投げてアプリが落ちる
+    private var audioEngine = AVAudioEngine()
     private var converter: AVAudioConverter?
     private var samples: [Float] = []
     private let sampleQueue = DispatchQueue(label: "koekaki.samples")
@@ -72,8 +74,16 @@ final class WhisperEngine: NSObject, ObservableObject {
 
     private func beginSession() {
         do {
+            audioEngine.stop()
+            audioEngine = AVAudioEngine()   // 前回の機器のフォーマットを引きずらない
             let input = audioEngine.inputNode
             let format = input.outputFormat(forBus: 0)
+            // 機器が外れている・切り替わった直後はサンプルレート0の空フォーマットが返る。
+            // このまま installTap すると Objective-C 例外で即クラッシュするので手前で止める
+            guard format.sampleRate > 0, format.channelCount > 0 else {
+                errorMessage = "マイクが見つかりません(システム設定→サウンド→入力を確認してください)"
+                return
+            }
             guard let target = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 16000,
                                              channels: 1, interleaved: false),
                   let conv = AVAudioConverter(from: format, to: target) else {
