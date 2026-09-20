@@ -36,6 +36,24 @@ final class WhisperEngine: NSObject, ObservableObject {
         let s = NSSound(named: "Bottle"); s?.volume = 0.6; return s
     }()
 
+    override init() {
+        super.init()
+        // 終了時にwhisperのコンテキストを解放する。残したまま exit() に入ると、ggmlのMetal後始末
+        // (ggml_metal_rsets_free)が abort して異常終了扱いになり、Macの終了・再起動が待たされる
+        NotificationCenter.default.addObserver(forName: NSApplication.willTerminateNotification,
+                                               object: nil, queue: .main) { [weak self] _ in
+            self?.freeContext()
+        }
+    }
+
+    /// 認識中なら終わるのを待ってから解放する
+    private func freeContext() {
+        whisperQueue.sync {
+            if let ctx { whisper_free(ctx) }
+            ctx = nil
+        }
+    }
+
     func start() {
         guard state == .idle else { return }
         AVCaptureDevice.requestAccess(for: .audio) { granted in
