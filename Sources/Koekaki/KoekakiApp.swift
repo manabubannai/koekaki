@@ -55,6 +55,8 @@ final class AppCoordinator: ObservableObject {
     private var settingsWindow: NSWindow?
 
     init() {
+        // 設定が有効なら、システムの既定入力が Bluetooth に切り替わるたび内蔵マイクへ戻す
+        MicGuard.shared.update()
         // engineの状態変化(録音中の経過秒など)をメニューバーアイコンへ伝播させる
         engine.objectWillChange
             .receive(on: DispatchQueue.main)

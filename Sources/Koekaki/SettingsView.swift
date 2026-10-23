@@ -4,6 +4,8 @@ import SwiftUI
 struct SettingsView: View {
     @Binding var hotKey: HotKeySetting
     @AppStorage(Paster.autoPasteKey) private var autoPaste = true
+    @AppStorage(AudioDevices.avoidBluetoothMicKey) private var avoidBluetoothMic = true
+    @AppStorage(AudioDevices.keepSystemMicBuiltInKey) private var keepSystemMicBuiltIn = false
     @State private var recording = false
     @State private var monitor: Any?
     @State private var flagsMonitor: Any?
@@ -77,6 +79,25 @@ struct SettingsView: View {
                 }
             }
 
+            section("マイク") {
+                VStack(alignment: .leading, spacing: 10) {
+                    row(title: "録音は Mac 内蔵マイクで",
+                        subtitle: "Bluetooth イヤホンのマイクを使うと、イヤホンが通話モードになり音がこもります。オンならイヤホン装着中も Mac のマイクで録音します") {
+                        Toggle("", isOn: $avoidBluetoothMic)
+                            .toggleStyle(.switch)
+                            .labelsHidden()
+                            .tint(NT.accent)
+                    }
+                    row(title: "ほかのアプリでも内蔵マイクを使う",
+                        subtitle: "システムの入力が Bluetooth イヤホンに切り替わったら、自動で Mac のマイクへ戻します(通話アプリで個別にマイクを選んでいれば、そちらが優先されます)") {
+                        Toggle("", isOn: $keepSystemMicBuiltIn)
+                            .toggleStyle(.switch)
+                            .labelsHidden()
+                            .tint(NT.accent)
+                    }
+                }
+            }
+
             section("バグ報告") {
                 VStack(alignment: .leading, spacing: 8) {
                     row(title: "不具合を見つけたら",
@@ -93,6 +114,9 @@ struct SettingsView: View {
         .onDisappear { stopRecordingKeys() }
         .onChange(of: autoPaste) { on in
             if on { Paster.ensureAccessibility(prompt: true) }
+        }
+        .onChange(of: keepSystemMicBuiltIn) { _ in
+            MicGuard.shared.update()
         }
     }
 

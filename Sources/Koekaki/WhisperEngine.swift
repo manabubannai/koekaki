@@ -95,6 +95,14 @@ final class WhisperEngine: NSObject, ObservableObject {
             audioEngine.stop()
             audioEngine = AVAudioEngine()   // 前回の機器のフォーマットを引きずらない
             let input = audioEngine.inputNode
+            // 既定入力が Bluetooth イヤホンなら Mac 内蔵マイクで録音する。イヤホンのマイクを開くと
+            // 通話モード(16kHz モノラル)に落ちて再生音が劣化し、録音後も戻らないことがあるため。
+            // フォーマットを読む前に機器を差し替えないと旧機器のフォーマットで tap を張ってしまう
+            if let device = AudioDevices.preferredRecordingDevice, let unit = input.audioUnit {
+                var id = device
+                AudioUnitSetProperty(unit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0,
+                                     &id, UInt32(MemoryLayout<AudioObjectID>.size))
+            }
             let format = input.outputFormat(forBus: 0)
             // 機器が外れている・切り替わった直後はサンプルレート0の空フォーマットが返る。
             // このまま installTap すると Objective-C 例外で即クラッシュするので手前で止める

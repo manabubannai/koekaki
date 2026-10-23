@@ -5,6 +5,7 @@ superwhisper の無料自作版。Swift/SPM のメニューバーアプリ2種(v
 重要な制約:
 - CGEventTapコールバック内で同期的にキー送出するとmacOS 26で入力システムがデッドロックする。送出・ハンドラ呼び出しは必ず非同期で(eikanaの知見)
 - v1/v2 は右⌥を取り合うので同時起動しない
+- Bluetooth イヤホンのマイクを開くと通話モード(HFP, 16kHz モノラル)に落ちて再生音が劣化し、録音後も戻らない。NoType は内蔵マイクで録音し(AudioDevices.swift)、MicGuard でシステム既定入力も内蔵マイクへ戻す。この方針を外さない
 - mlx_whisper は pipeline の venv (`~/Documents/pipeline/.venv/bin/mlx_whisper`) に相乗り。pipeline の venv を作り直したらここも動かなくなる点に注意
 
 ## ポートフォリオ連携
